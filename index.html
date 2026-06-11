@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<title>Polla Sonda - Sistema de Pronósticos</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+
+:root{
+ --sonda:#005BAC;
+ --amarillo:#FCD116;
+ --azul:#003893;
+ --rojo:#CE1126;
+ --verde-exito:#28a745;
+ --gris-claro:#f8f9fa;
+ --gris-borde:#dee2e6;
+ --texto-oscuro:#212529;
+ --sombra:0 2px 8px rgba(0,0,0,0.1);
+ --sombra-hover:0 4px 12px rgba(0,0,0,0.15);
+}
+
+*{
+ box-sizing:border-box;
+}
+
+body{
+ margin:0;
+ font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ background:linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+ min-height:100vh;
+}
+
+header{
+ padding:25px 20px;
+ text-align:center;
+ color:white;
+ background:linear-gradient(90deg, var(--amarillo), var(--azul), var(--rojo));
+ box-shadow:var(--sombra);
+}
+
+header h1{
+ margin:0;
+ font-size:1.8rem;
+ letter-spacing:1px;
+}
+
+header h3{
+ margin:10px 0 0;
+ opacity:0.95;
+ font-weight:normal;
+}
+
+.card{
+ background:white;
+ margin:20px;
+ padding:20px;
+ border-radius:15px;
+ box-shadow:var(--sombra);
+ transition:transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover{
+ box-shadow:var(--sombra-hover);
+}
+
+.card h2{
+ margin-top:0;
+ margin-bottom:20px;
+ color:var(--sonda);
+ font-size:1.5rem;
+ border-left:4px solid var(--sonda);
+ padding-left:12px;
+}
+
+input, select, button{
+ padding:12px 14px;
+ margin:5px;
+ border-radius:8px;
+ font-size:14px;
+ transition:all 0.2s;
+}
+
+input, select{
+ border:1px solid var(--gris-borde);
+ background:white;
+}
+
+input:focus, select:focus{
+ outline:none;
+ border-color:var(--sonda);
+ box-shadow:0 0 0 3px rgba(0,91,172,0.1);
+}
+
+button{
+ background:var(--sonda);
+ color:white;
+ border:none;
+ cursor:pointer;
+ font-weight:600;
+}
+
+button:hover{
+ background:#004a8c;
+ transform:translateY(-1px);
+}
+
+button.eliminar{
+ background:#dc3545;
+}
+
+button.eliminar:hover{
+ background:#c82333;
+}
+
+button.cerrar{
+ background:#ffc107;
+ color:#333;
+}
+
+button.cerrar:hover{
+ background:#e0a800;
+}
+
+button.reabrir{
+ background:#28a745;
+}
+
+button.reabrir:hover{
+ background:#218838;
+}
+
+/* Estilos mejorados para la tabla */
+.contenedor-tabla{
+ overflow-x:auto;
+ margin-top:15px;
+ border-radius:12px;
+ border:1px solid var(--gris-borde);
+ background:white;
+}
+
+.tabla-pronosticos{
+ width:100%;
+ border-collapse:separate;
+ border-spacing:0;
+ font-size:14px;
+}
+
+.tabla-pronosticos thead tr{
+ background:linear-gradient(135deg, var(--sonda), #003d6b);
+}
+
+.tabla-pronosticos th{
+ color:white;
+ padding:14px 12px;
+ text-align:left;
+ font-weight:600;
+ font-size:0.9rem;
+ letter-spacing:0.5px;
+ position:sticky;
+ top:0;
+}
+
+.tabla-pronosticos th:first-child{
+ border-top-left-radius:12px;
+}
+
+.tabla-pronosticos th:last-child{
+ border-top-right-radius:12px;
+}
+
+.tabla-pronosticos td{
+ padding:12px;
+ border-bottom:1px solid #f0f0f0;
+ color:var(--texto-oscuro);
+}
+
+.tabla-pronosticos tbody tr{
+ transition:background 0.2s;
+}
+
+.tabla-pronosticos tbody tr:hover{
+ background:linear-gradient(90deg, #f8f9ff, #ffffff);
+ transform:scale(1.01);
+ box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Filas alternas */
+.tabla-pronosticos tbody tr:nth-child(even){
+ background-color:#fafbfc;
+}
+
+.tabla-pronosticos tbody tr:nth-child(odd){
+ background-color:#ffffff;
+}
+
+/* Celda de prioridad - círculo numerado */
+.celda-prioridad{
+ text-align:center;
+ font-weight:bold;
+}
+
+.numero-prioridad{
+ display:inline-block;
+ width:32px;
+ height:32px;
+ line-height:32px;
+ text-align:center;
+ background:linear-gradient(135deg, var(--sonda), #004a8c);
+ color:white;
+ border-radius:50%;
+ font-size:14px;
+ font-weight:bold;
+ box-shadow:0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Marcador estilo badge */
+.marcador-badge{
+ display:inline-block;
+ background:#e9ecef;
+ padding:4px 12px;
+ border-radius:20px;
+ font-weight:bold;
+ color:var(--sonda);
+ font-size:13px;
+}
+
+/* Fecha en formato más amigable */
+.fecha-registro{
+ font-size:12px;
+ color:#6c757d;
+ display:inline-flex;
+ align-items:center;
+ gap:5px;
+}
+
+.fecha-registro::before{
+ content:"🕒";
+ font-size:11px;
+}
+
+/* Nombre del participante con ícono */
+.nombre-participante{
+ font-weight:600;
+ color:var(--sonda);
+ display:inline-flex;
+ align-items:center;
+ gap:6px;
+}
+
+.nombre-participante::before{
+ content:"👤";
+ font-size:13px;
+}
+
+/* Partido con ícono */
+.partido-nombre{
+ display:inline-flex;
+ align-items:center;
+ gap:6px;
+}
+
+.partido-nombre::before{
+ content:"⚽";
+ font-size:13px;
+}
+
+/* Estilos para lista de partidos */
+.partido-item{
+ background:#f8f9fa;
+ border-radius:12px;
+ padding:15px;
+ margin-bottom:15px;
+ border-left:4px solid var(--sonda);
+ transition:all 0.2s;
+}
+
+.partido-item:hover{
+ background:#fff;
+ box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.partido-equipos{
+ font-size:1.2rem;
+ font-weight:bold;
+ color:var(--sonda);
+ margin-bottom:8px;
+}
+
+.partido-estado{
+ display:inline-block;
+ padding:4px 12px;
+ border-radius:20px;
+ font-size:12px;
+ font-weight:bold;
+ margin:8px 0;
+}
+
+.abierto{
+ background:#d4edda;
+ color:#155724;
+}
+
+.cerrado{
+ background:#f8d7da;
+ color:#721c24;
+}
+
+.botones-partido{
+ display:flex;
+ flex-wrap:wrap;
+ gap:8px;
+ margin-top:10px;
+}
+
+.botones-partido button{
+ margin:0;
+ padding:8px 16px;
+ font-size:13px;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px){
+ .card{
+  margin:12px;
+  padding:15px;
+ }
+ 
+ .card h2{
+  font-size:1.3rem;
+ }
+ 
+ input, select, button{
+  width:calc(100% - 10px);
+  margin:5px;
+ }
+ 
+ .tabla-pronosticos th,
+ .tabla-pronosticos td{
+  padding:10px 8px;
+  font-size:12px;
+ }
+ 
+ .numero-prioridad{
+  width:26px;
+  height:26px;
+  line-height:26px;
+  font-size:12px;
+ }
+ 
+ .marcador-badge{
+  padding:2px 8px;
+  font-size:11px;
+ }
+ 
+ .botones-partido button{
+  flex:1;
+  min-width:80px;
+ }
+}
+
+@media (max-width: 600px){
+ .tabla-pronosticos thead{
+  display:none;
+ }
+ 
+ .tabla-pronosticos tbody tr{
+  display:block;
+  margin-bottom:15px;
+  border:1px solid var(--gris-borde);
+  border-radius:12px;
+  padding:10px;
+  background:white !important;
+ }
+ 
+ .tabla-pronosticos tbody td{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #eee;
+  text-align:right;
+  padding:8px 10px;
+ }
+ 
+ .tabla-pronosticos tbody td:last-child{
+  border-bottom:none;
+ }
+ 
+ .tabla-pronosticos tbody td::before{
+  content:attr(data-label);
+  font-weight:bold;
+  text-align:left;
+  color:var(--sonda);
+  margin-right:15px;
+ }
+ 
+ .celda-prioridad{
+  justify-content:space-between;
+ }
+}
+
+/* Scroll suave */
+html{
+ scroll-behavior:smooth;
+}
+
+/* Tooltips */
+[data-tooltip]{
+ position:relative;
+ cursor:help;
+}
+
+[data-tooltip]:hover::after{
+ content:attr(data-tooltip);
+ position:absolute;
+ bottom:100%;
+ left:50%;
+ transform:translateX(-50%);
+ background:#333;
+ color:white;
+ padding:4px 8px;
+ border-radius:6px;
+ font-size:12px;
+ white-space:nowrap;
+ z-index:1000;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>⚽ POLLA SONDA</h1>
+<h3 id="estadoGeneral">Sistema de Pronósticos Deportivos</h3>
+</header>
+
+<div class="card">
+<h2>📋 Crear Partido</h2>
+<input id="local" placeholder="Equipo Local" autocomplete="off">
+<input id="visitante" placeholder="Equipo Visitante" autocomplete="off">
+<input id="fecha" type="datetime-local">
+<button onclick="crearPartido()">➕ Crear Partido</button>
+</div>
+
+<div class="card">
+<h2>🎯 Registrar Pronóstico</h2>
+<input id="nombre" placeholder="Nombre del Participante" autocomplete="off">
+<select id="partido"></select>
+<input id="gl" type="number" placeholder="Goles Local">
+<input id="gv" type="number" placeholder="Goles Visitante">
+<button onclick="registrar()">📝 Registrar Pronóstico</button>
+</div>
+
+<div class="card">
+<h2>🏆 Partidos Disponibles</h2>
+<div id="listaPartidos"></div>
+</div>
+
+<div class="card">
+<h2>📊 Pronósticos Registrados</h2>
+<div id="tablaPronosticos"></div>
+</div>
+
+<script>
+
+let partidos = JSON.parse(localStorage.getItem("partidos")) || [];
+let pronosticos = JSON.parse(localStorage.getItem("pronosticos")) || [];
+
+function guardar(){
+ localStorage.setItem("partidos", JSON.stringify(partidos));
+ localStorage.setItem("pronosticos", JSON.stringify(pronosticos));
+}
+
+function crearPartido(){
+ if(!local.value.trim() || !visitante.value.trim()){
+  alert("Por favor ingresa los nombres de ambos equipos");
+  return;
+ }
+ 
+ const partido = {
+  id: Date.now(),
+  local: local.value.trim(),
+  visitante: visitante.value.trim(),
+  fecha: fecha.value,
+  estado: "abierto"
+ };
+ 
+ partidos.push(partido);
+ guardar();
+ render();
+ 
+ local.value = "";
+ visitante.value = "";
+ fecha.value = "";
+ 
+ alert(`✅ Partido creado: ${partido.local} vs ${partido.visitante}`);
+}
+
+function cerrarPartido(id){
+ const partido = partidos.find(p => p.id === id);
+ if(partido){
+  partido.estado = "cerrado";
+  partido.fechaCierre = new Date().toLocaleString();
+  guardar();
+  render();
+  alert(`🔒 Partido cerrado: ${partido.local} vs ${partido.visitante}`);
+ }
+}
+
+function reabrirPartido(id){
+ const partido = partidos.find(p => p.id === id);
+ if(partido){
+  partido.estado = "abierto";
+  guardar();
+  render();
+  alert(`🔓 Partido reabierto: ${partido.local} vs ${partido.visitante}`);
+ }
+}
+
+function eliminarPartido(id){
+ const partido = partidos.find(p => p.id === id);
+ if(confirm(`¿Eliminar el partido ${partido.local} vs ${partido.visitante}?\nSe eliminarán también ${pronosticos.filter(p => p.partidoId === id).length} pronósticos asociados.`)){
+  partidos = partidos.filter(p => p.id !== id);
+  pronosticos = pronosticos.filter(p => p.partidoId !== id);
+  guardar();
+  render();
+  alert("🗑️ Partido y pronósticos eliminados correctamente");
+ }
+}
+
+function registrar(){
+ const partidoId = document.getElementById("partido").value;
+ const partidoObj = partidos.find(p => p.id == partidoId);
+ 
+ if(!partidoObj){
+  alert("Selecciona un partido válido");
+  return;
+ }
+ 
+ if(partidoObj.estado === "cerrado"){
+  alert("⛔ Este partido está cerrado, no se pueden registrar más pronósticos");
+  return;
+ }
+ 
+ if(!nombre.value.trim()){
+  alert("Ingresa el nombre del participante");
+  nombre.focus();
+  return;
+ }
+ 
+ if(gl.value === "" || gv.value === ""){
+  alert("Ingresa el marcador pronosticado");
+  return;
+ }
+ 
+ const ahora = new Date();
+ const ticket = "PS-" + Date.now();
+ 
+ const registro = {
+  ticket: ticket,
+  nombre: nombre.value.trim(),
+  partido: partidoObj.local + " vs " + partidoObj.visitante,
+  partidoId: partidoObj.id,
+  local: Number(gl.value),
+  visitante: Number(gv.value),
+  fecha: ahora.toLocaleString(),
+  timestamp: ahora.getTime()
+ };
+ 
+ pronosticos.push(registro);
+ guardar();
+ generarPDF(registro);
+ 
+ nombre.value = "";
+ gl.value = "";
+ gv.value = "";
+ nombre.focus();
+ 
+ render();
+ alert(`✅ Pronóstico registrado para ${registro.nombre}\n🎫 Ticket: ${ticket}`);
+}
+
+function generarPDF(r){
+ const { jsPDF } = window.jspdf;
+ const doc = new jsPDF();
+ 
+ doc.setFontSize(22);
+ doc.setTextColor(0, 91, 172);
+ doc.text("⚽ POLLA SONDA", 20, 20);
+ 
+ doc.setFontSize(11);
+ doc.setTextColor(100);
+ doc.setLineWidth(0.5);
+ doc.line(20, 25, 190, 25);
+ 
+ doc.setTextColor(0, 0, 0);
+ doc.text(`🎫 Ticket: ${r.ticket}`, 20, 40);
+ doc.text(`👤 Participante: ${r.nombre}`, 20, 50);
+ doc.text(`🏆 Partido: ${r.partido}`, 20, 60);
+ doc.text(`📊 Pronóstico: ${r.local} - ${r.visitante}`, 20, 70);
+ doc.text(`🕒 Registro: ${r.fecha}`, 20, 80);
+ 
+ doc.setFontSize(10);
+ doc.setTextColor(100);
+ doc.text("Prioridad por orden de registro", 20, 95);
+ 
+ doc.save(`${r.ticket}.pdf`);
+}
+
+function render(){
+ const combo = document.getElementById("partido");
+ combo.innerHTML = "";
+ 
+ partidos.forEach(p => {
+  combo.innerHTML += `<option value="${p.id}">${p.local} vs ${p.visitante} ${p.estado === "cerrado" ? "🔒" : "🟢"}</option>`;
+ });
+ 
+ document.getElementById("listaPartidos").innerHTML = partidos.map(p => `
+  <div class="partido-item">
+   <div class="partido-equipos">
+    ⚽ ${p.local} vs ${p.visitante}
+   </div>
+   <div>📅 ${p.fecha ? new Date(p.fecha).toLocaleString() : "Fecha no definida"}</div>
+   <div>
+    <span class="partido-estado ${p.estado === "abierto" ? "abierto" : "cerrado"}">
+     ${p.estado === "abierto" ? "🟢 ABIERTO" : "🔴 CERRADO"}
+    </span>
+   </div>
+   <div class="botones-partido">
+    <button class="cerrar" onclick="cerrarPartido(${p.id})">🔒 Cerrar</button>
+    <button class="reabrir" onclick="reabrirPartido(${p.id})">🔓 Reabrir</button>
+    <button class="eliminar" onclick="eliminarPartido(${p.id})">🗑️ Eliminar</button>
+   </div>
+  </div>
+ `).join("");
+ 
+ const ordenados = [...pronosticos].sort((a,b) => a.timestamp - b.timestamp);
+ 
+ document.getElementById("tablaPronosticos").innerHTML = `
+  <div class="contenedor-tabla">
+   <table class="tabla-pronosticos">
+    <thead>
+     <tr>
+      <th>🏅 Prioridad</th>
+      <th>👤 Participante</th>
+      <th>⚽ Partido</th>
+      <th>🎯 Marcador</th>
+      <th>🕒 Registro</th>
+     </tr>
+    </thead>
+    <tbody>
+     ${ordenados.map((p, i) => `
+      <tr>
+       <td class="celda-prioridad" data-label="Prioridad">
+        <span class="numero-prioridad">${i+1}</span>
+       </td>
+       <td data-label="Participante">
+        <span class="nombre-participante">${escapeHtml(p.nombre)}</span>
+       </td>
+       <td data-label="Partido">
+        <span class="partido-nombre">${escapeHtml(p.partido)}</span>
+       </td>
+       <td data-label="Marcador">
+        <span class="marcador-badge">${p.local} - ${p.visitante}</span>
+       </td>
+       <td data-label="Registro">
+        <span class="fecha-registro">${p.fecha}</span>
+       </td>
+      </tr>
+     `).join("")}
+    </tbody>
+   </table>
+  </div>
+  ${ordenados.length === 0 ? '<div style="text-align:center; padding:40px; color:#999;">📭 No hay pronósticos registrados aún</div>' : ''}
+ `;
+ 
+ document.getElementById("estadoGeneral").innerHTML = `📊 ${partidos.length} partidos activos | ${pronosticos.length} pronósticos registrados`;
+}
+
+function escapeHtml(text){
+ const div = document.createElement('div');
+ div.textContent = text;
+ return div.innerHTML;
+}
+
+render();
+
+</script>
+</body>
+</html>
