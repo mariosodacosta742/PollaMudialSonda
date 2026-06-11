@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<title>Polla Sonda - Sistema de Pronósticos</title>
+<title>Polla Sonda - Pronósticos Manual o Aleatorio</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -21,6 +21,9 @@
  --texto-oscuro:#212529;
  --sombra:0 2px 8px rgba(0,0,0,0.1);
  --sombra-hover:0 4px 12px rgba(0,0,0,0.15);
+ --oro:#FFD700;
+ --plata:#C0C0C0;
+ --bronce:#CD7F32;
 }
 
 *{
@@ -133,6 +136,69 @@ button.reabrir:hover{
  background:#218838;
 }
 
+button.random{
+ background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+button.random:hover{
+ background:linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
+}
+
+button.manual{
+ background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+/* Estilos para el botín */
+.botin-card{
+ background:linear-gradient(135deg, #fff9e6, #fff3cd);
+ border:2px solid var(--oro);
+}
+
+.botin-total{
+ font-size:2rem;
+ font-weight:bold;
+ color:#b8860b;
+ text-align:center;
+ margin:10px 0;
+}
+
+.botin-total small{
+ font-size:0.9rem;
+ color:#856404;
+}
+
+/* Resultado aleatorio mostrado */
+.resultado-aleatorio-card{
+ background:linear-gradient(135deg, #e8f0fe, #d4e4fc);
+ border-left:4px solid var(--sonda);
+ margin:15px 0;
+ padding:15px;
+ border-radius:10px;
+ text-align:center;
+}
+
+.resultado-aleatorio-card .resultado-grande{
+ font-size:2rem;
+ font-weight:bold;
+ color:var(--sonda);
+}
+
+/* Resultado acertado */
+.acertado{
+ background:linear-gradient(135deg, #d4edda, #c3e6cb) !important;
+ border-left:4px solid #28a745 !important;
+}
+
+.acertado-badge{
+ display:inline-block;
+ background:#28a745;
+ color:white;
+ padding:2px 8px;
+ border-radius:20px;
+ font-size:11px;
+ margin-left:8px;
+}
+
 /* Estilos mejorados para la tabla */
 .contenedor-tabla{
  overflow-x:auto;
@@ -226,6 +292,36 @@ button.reabrir:hover{
  font-weight:bold;
  color:var(--sonda);
  font-size:13px;
+}
+
+.marcador-real{
+ display:inline-block;
+ background:#667eea;
+ padding:4px 12px;
+ border-radius:20px;
+ font-weight:bold;
+ color:white;
+ font-size:13px;
+ margin-left:8px;
+}
+
+/* Tipo de registro badge */
+.tipo-registro{
+ display:inline-block;
+ padding:2px 8px;
+ border-radius:20px;
+ font-size:11px;
+ font-weight:bold;
+}
+
+.tipo-manual{
+ background:#11998e;
+ color:white;
+}
+
+.tipo-aleatorio{
+ background:#764ba2;
+ color:white;
 }
 
 /* Fecha en formato más amigable */
@@ -322,6 +418,61 @@ button.reabrir:hover{
  font-size:13px;
 }
 
+/* Botones de registro */
+.botones-registro{
+ display:flex;
+ flex-wrap:wrap;
+ gap:10px;
+ margin-top:10px;
+}
+
+.botones-registro button{
+ flex:1;
+ min-width:150px;
+}
+
+/* Modal para contraseña */
+.modal{
+ display:none;
+ position:fixed;
+ z-index:1000;
+ left:0;
+ top:0;
+ width:100%;
+ height:100%;
+ background-color:rgba(0,0,0,0.5);
+ justify-content:center;
+ align-items:center;
+}
+
+.modal-contenido{
+ background:white;
+ padding:25px;
+ border-radius:15px;
+ width:90%;
+ max-width:350px;
+ text-align:center;
+ box-shadow:var(--sombra);
+}
+
+.modal-contenido h3{
+ margin-top:0;
+ color:var(--sonda);
+}
+
+.modal-contenido input{
+ width:100%;
+ margin:15px 0;
+ text-align:center;
+ font-size:18px;
+ letter-spacing:2px;
+}
+
+.modal-contenido button{
+ margin:5px;
+ padding:10px 20px;
+}
+
 /* Responsive para móviles */
 @media (max-width: 768px){
  .card{
@@ -359,6 +510,14 @@ button.reabrir:hover{
  .botones-partido button{
   flex:1;
   min-width:80px;
+ }
+ 
+ .botones-registro button{
+  min-width:120px;
+ }
+ 
+ .botin-total{
+  font-size:1.5rem;
  }
 }
 
@@ -407,27 +566,6 @@ html{
  scroll-behavior:smooth;
 }
 
-/* Tooltips */
-[data-tooltip]{
- position:relative;
- cursor:help;
-}
-
-[data-tooltip]:hover::after{
- content:attr(data-tooltip);
- position:absolute;
- bottom:100%;
- left:50%;
- transform:translateX(-50%);
- background:#333;
- color:white;
- padding:4px 8px;
- border-radius:6px;
- font-size:12px;
- white-space:nowrap;
- z-index:1000;
-}
-
 </style>
 </head>
 
@@ -435,7 +573,7 @@ html{
 
 <header>
 <h1>⚽ POLLA SONDA</h1>
-<h3 id="estadoGeneral">Sistema de Pronósticos Deportivos</h3>
+<h3 id="estadoGeneral">Sistema de Pronósticos - Registro Manual o Aleatorio</h3>
 </header>
 
 <div class="card">
@@ -447,12 +585,28 @@ html{
 </div>
 
 <div class="card">
-<h2>🎯 Registrar Pronóstico</h2>
+<h2>🎯 Registrar Pronóstico - Apuesta: $2,000 COP</h2>
 <input id="nombre" placeholder="Nombre del Participante" autocomplete="off">
 <select id="partido"></select>
-<input id="gl" type="number" placeholder="Goles Local">
-<input id="gv" type="number" placeholder="Goles Visitante">
-<button onclick="registrar()">📝 Registrar Pronóstico</button>
+
+<div style="display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap;">
+ <input id="gl" type="number" placeholder="Goles Local - (Opcional)" style="flex:1;">
+ <input id="gv" type="number" placeholder="Goles Visitante - (Opcional)" style="flex:1;">
+</div>
+
+<div class="botones-registro">
+ <button class="manual" onclick="registrarManual()">✍️ Registrar Manual</button>
+ <button class="random" onclick="registrarAleatorio()">🎲 Registrar Aleatorio</button>
+</div>
+<p style="font-size:12px; color:#666; margin-top:10px; text-align:center;">
+ 📌 <strong>Manual:</strong> Escribe el marcador que prefieras<br>
+ 🎲 <strong>Aleatorio:</strong> El sistema genera un marcador aleatorio automáticamente
+</p>
+</div>
+
+<div class="card botin-card">
+<h2>🏆 BOTÍN ACUMULADO POR PARTIDO</h2>
+<div id="botinesPartidos"></div>
 </div>
 
 <div class="card">
@@ -465,14 +619,179 @@ html{
 <div id="tablaPronosticos"></div>
 </div>
 
+<!-- Modal para contraseña -->
+<div id="modalPassword" class="modal">
+ <div class="modal-contenido">
+  <h3>🔒 Verificación requerida</h3>
+  <p>Ingrese la contraseña para eliminar este partido</p>
+  <input type="password" id="passwordInput" placeholder="Contraseña" autocomplete="off">
+  <div>
+   <button onclick="confirmarEliminacion()">✓ Confirmar</button>
+   <button onclick="cerrarModal()" style="background:#6c757d">✗ Cancelar</button>
+  </div>
+ </div>
+</div>
+
 <script>
+
+const CONTRASENA_ADMIN = "72315240";
+const VALOR_APUESTA = 2000;
 
 let partidos = JSON.parse(localStorage.getItem("partidos")) || [];
 let pronosticos = JSON.parse(localStorage.getItem("pronosticos")) || [];
+let partidoAEliminar = null;
 
 function guardar(){
  localStorage.setItem("partidos", JSON.stringify(partidos));
  localStorage.setItem("pronosticos", JSON.stringify(pronosticos));
+}
+
+function actualizarBotinPartido(partidoId){
+ const partido = partidos.find(p => p.id === partidoId);
+ if(partido){
+  const apuestasPartido = pronosticos.filter(p => p.partidoId === partidoId);
+  partido.botin = apuestasPartido.length * VALOR_APUESTA;
+  guardar();
+ }
+}
+
+function generarResultadoAleatorioIndividual(){
+ const golesLocal = Math.floor(Math.random() * 6);
+ const golesVisitante = Math.floor(Math.random() * 6);
+ return { local: golesLocal, visitante: golesVisitante };
+}
+
+function registrarBase(tipo, pronosticoLocal, pronosticoVisitante){
+ const partidoId = document.getElementById("partido").value;
+ const partidoObj = partidos.find(p => p.id == partidoId);
+ 
+ if(!partidoObj){
+  alert("Selecciona un partido válido");
+  return false;
+ }
+ 
+ if(partidoObj.estado === "cerrado"){
+  alert("⛔ Este partido está cerrado, no se pueden registrar más pronósticos");
+  return false;
+ }
+ 
+ if(!nombre.value.trim()){
+  alert("Ingresa el nombre del participante");
+  nombre.focus();
+  return false;
+ }
+ 
+ if(pronosticoLocal === undefined || pronosticoVisitante === undefined){
+  alert("Error: No se pudo determinar el marcador");
+  return false;
+ }
+ 
+ const resultadoAleatorio = generarResultadoAleatorioIndividual();
+ const ahora = new Date();
+ const ticket = "PS-" + Date.now();
+ 
+ const registro = {
+  ticket: ticket,
+  nombre: nombre.value.trim(),
+  partido: partidoObj.local + " vs " + partidoObj.visitante,
+  partidoId: partidoObj.id,
+  tipoRegistro: tipo,
+  pronosticadoLocal: pronosticoLocal,
+  pronosticadoVisitante: pronosticoVisitante,
+  resultadoRealLocal: resultadoAleatorio.local,
+  resultadoRealVisitante: resultadoAleatorio.visitante,
+  fecha: ahora.toLocaleString(),
+  timestamp: ahora.getTime(),
+  apuesta: VALOR_APUESTA
+ };
+ 
+ // Verificar si acertó
+ registro.acerto = (registro.pronosticadoLocal === registro.resultadoRealLocal) && 
+                    (registro.pronosticadoVisitante === registro.resultadoRealVisitante);
+ 
+ pronosticos.push(registro);
+ actualizarBotinPartido(partidoObj.id);
+ guardar();
+ generarPDF(registro);
+ 
+ const mensaje = `🎲 RESULTADO ALEATORIO GENERADO: ${resultadoAleatorio.local} - ${resultadoAleatorio.visitante}\n
+📝 Tipo: ${tipo === 'manual' ? '✍️ Manual' : '🎲 Aleatorio'}\n
+📊 Marcador registrado: ${pronosticoLocal} - ${pronosticoVisitante}\n
+${registro.acerto ? '✅ ¡FELICIDADES! ACERTASTE EL RESULTADO' : '❌ No acertaste, sigue participando'}\n
+🎫 Ticket: ${ticket}\n💰 Apuesta: $${VALOR_APUESTA.toLocaleString()} COP`;
+ 
+ alert(mensaje);
+ 
+ nombre.value = "";
+ gl.value = "";
+ gv.value = "";
+ nombre.focus();
+ 
+ render();
+ return true;
+}
+
+function registrarManual(){
+ let pronosticoLocal = parseInt(gl.value);
+ let pronosticoVisitante = parseInt(gv.value);
+ 
+ if(isNaN(pronosticoLocal)){
+  alert("Ingresa los goles del equipo Local");
+  gl.focus();
+  return;
+ }
+ 
+ if(isNaN(pronosticoVisitante)){
+  alert("Ingresa los goles del equipo Visitante");
+  gv.focus();
+  return;
+ }
+ 
+ registrarBase('manual', pronosticoLocal, pronosticoVisitante);
+}
+
+function registrarAleatorio(){
+ const resultadoAleatorio = generarResultadoAleatorioIndividual();
+ const pronosticoLocal = resultadoAleatorio.local;
+ const pronosticoVisitante = resultadoAleatorio.visitante;
+ 
+ // Mostrar preview al usuario
+ const confirmar = confirm(`🎲 Se generará un marcador ALEATORIO: ${pronosticoLocal} - ${pronosticoVisitante}\n\n¿Deseas registrar este marcador?`);
+ 
+ if(confirmar){
+  registrarBase('aleatorio', pronosticoLocal, pronosticoVisitante);
+ }
+}
+
+function generarPDF(r){
+ const { jsPDF } = window.jspdf;
+ const doc = new jsPDF();
+ 
+ doc.setFontSize(22);
+ doc.setTextColor(0, 91, 172);
+ doc.text("⚽ POLLA SONDA", 20, 20);
+ 
+ doc.setFontSize(11);
+ doc.setTextColor(100);
+ doc.setLineWidth(0.5);
+ doc.line(20, 25, 190, 25);
+ 
+ doc.setTextColor(0, 0, 0);
+ doc.text(`🎫 Ticket: ${r.ticket}`, 20, 40);
+ doc.text(`👤 Participante: ${r.nombre}`, 20, 50);
+ doc.text(`🏆 Partido: ${r.partido}`, 20, 60);
+ doc.text(`📝 Tipo de registro: ${r.tipoRegistro === 'manual' ? '✍️ Manual' : '🎲 Aleatorio'}`, 20, 70);
+ doc.text(`🎲 Resultado Real (Aleatorio): ${r.resultadoRealLocal} - ${r.resultadoRealVisitante}`, 20, 80);
+ doc.text(`📊 Marcador Registrado: ${r.pronosticadoLocal} - ${r.pronosticadoVisitante}`, 20, 90);
+ doc.text(r.acerto ? "✅ ¡ACERTASTE!" : "❌ No acertaste", 20, 100);
+ doc.text(`🕒 Registro: ${r.fecha}`, 20, 110);
+ doc.text(`💰 Apuesta: $${r.apuesta.toLocaleString()} COP`, 20, 120);
+ 
+ doc.setFontSize(10);
+ doc.setTextColor(100);
+ doc.text("Gracias por participar en POLLA SONDA", 20, 135);
+ 
+ doc.save(`${r.ticket}.pdf`);
 }
 
 function crearPartido(){
@@ -486,7 +805,8 @@ function crearPartido(){
   local: local.value.trim(),
   visitante: visitante.value.trim(),
   fecha: fecha.value,
-  estado: "abierto"
+  estado: "abierto",
+  botin: 0
  };
  
  partidos.push(partido);
@@ -507,7 +827,7 @@ function cerrarPartido(id){
   partido.fechaCierre = new Date().toLocaleString();
   guardar();
   render();
-  alert(`🔒 Partido cerrado: ${partido.local} vs ${partido.visitante}`);
+  alert(`🔒 Partido cerrado: ${partido.local} vs ${partido.visitante}\n💰 Botín total: $${partido.botin.toLocaleString()} COP`);
  }
 }
 
@@ -518,6 +838,33 @@ function reabrirPartido(id){
   guardar();
   render();
   alert(`🔓 Partido reabierto: ${partido.local} vs ${partido.visitante}`);
+ }
+}
+
+function solicitarEliminacion(id){
+ partidoAEliminar = id;
+ const modal = document.getElementById("modalPassword");
+ modal.style.display = "flex";
+ document.getElementById("passwordInput").value = "";
+ document.getElementById("passwordInput").focus();
+}
+
+function cerrarModal(){
+ const modal = document.getElementById("modalPassword");
+ modal.style.display = "none";
+ partidoAEliminar = null;
+}
+
+function confirmarEliminacion(){
+ const password = document.getElementById("passwordInput").value;
+ 
+ if(password === CONTRASENA_ADMIN){
+  eliminarPartido(partidoAEliminar);
+  cerrarModal();
+ } else {
+  alert("❌ Contraseña incorrecta. No se puede eliminar el partido.");
+  document.getElementById("passwordInput").value = "";
+  document.getElementById("passwordInput").focus();
  }
 }
 
@@ -532,83 +879,8 @@ function eliminarPartido(id){
  }
 }
 
-function registrar(){
- const partidoId = document.getElementById("partido").value;
- const partidoObj = partidos.find(p => p.id == partidoId);
- 
- if(!partidoObj){
-  alert("Selecciona un partido válido");
-  return;
- }
- 
- if(partidoObj.estado === "cerrado"){
-  alert("⛔ Este partido está cerrado, no se pueden registrar más pronósticos");
-  return;
- }
- 
- if(!nombre.value.trim()){
-  alert("Ingresa el nombre del participante");
-  nombre.focus();
-  return;
- }
- 
- if(gl.value === "" || gv.value === ""){
-  alert("Ingresa el marcador pronosticado");
-  return;
- }
- 
- const ahora = new Date();
- const ticket = "PS-" + Date.now();
- 
- const registro = {
-  ticket: ticket,
-  nombre: nombre.value.trim(),
-  partido: partidoObj.local + " vs " + partidoObj.visitante,
-  partidoId: partidoObj.id,
-  local: Number(gl.value),
-  visitante: Number(gv.value),
-  fecha: ahora.toLocaleString(),
-  timestamp: ahora.getTime()
- };
- 
- pronosticos.push(registro);
- guardar();
- generarPDF(registro);
- 
- nombre.value = "";
- gl.value = "";
- gv.value = "";
- nombre.focus();
- 
- render();
- alert(`✅ Pronóstico registrado para ${registro.nombre}\n🎫 Ticket: ${ticket}`);
-}
-
-function generarPDF(r){
- const { jsPDF } = window.jspdf;
- const doc = new jsPDF();
- 
- doc.setFontSize(22);
- doc.setTextColor(0, 91, 172);
- doc.text("⚽ POLLA SONDA", 20, 20);
- 
- doc.setFontSize(11);
- doc.setTextColor(100);
- doc.setLineWidth(0.5);
- doc.line(20, 25, 190, 25);
- 
- doc.setTextColor(0, 0, 0);
- doc.text(`🎫 Ticket: ${r.ticket}`, 20, 40);
- doc.text(`👤 Participante: ${r.nombre}`, 20, 50);
- doc.text(`🏆 Partido: ${r.partido}`, 20, 60);
- doc.text(`📊 Pronóstico: ${r.local} - ${r.visitante}`, 20, 70);
- doc.text(`🕒 Registro: ${r.fecha}`, 20, 80);
- 
- doc.setFontSize(10);
- doc.setTextColor(100);
- doc.text("Prioridad por orden de registro", 20, 95);
- 
- doc.save(`${r.ticket}.pdf`);
+function formatearNumero(num){
+ return new Intl.NumberFormat('es-CO').format(num);
 }
 
 function render(){
@@ -616,15 +888,50 @@ function render(){
  combo.innerHTML = "";
  
  partidos.forEach(p => {
-  combo.innerHTML += `<option value="${p.id}">${p.local} vs ${p.visitante} ${p.estado === "cerrado" ? "🔒" : "🟢"}</option>`;
+  combo.innerHTML += `<option value="${p.id}">${p.local} vs ${p.visitante} - Botín: $${(p.botin || 0).toLocaleString()} ${p.estado === "cerrado" ? "🔒" : "🟢"}</option>`;
  });
  
- document.getElementById("listaPartidos").innerHTML = partidos.map(p => `
+ // Mostrar botines por partido
+ document.getElementById("botinesPartidos").innerHTML = partidos.length > 0 ? 
+  partidos.map(p => {
+   const pronosticosPartido = pronosticos.filter(pr => pr.partidoId === p.id);
+   const ganadores = pronosticosPartido.filter(pr => pr.acerto === true);
+   const botinGanadores = ganadores.length > 0 ? p.botin / ganadores.length : 0;
+   
+   return `
+   <div style="padding:12px; margin-bottom:10px; background:#fff; border-radius:10px; border-left:4px solid ${p.estado === 'abierto' ? '#28a745' : '#dc3545'}">
+    <strong>⚽ ${p.local} vs ${p.visitante}</strong>
+    <div class="botin-total" style="font-size:1.3rem; margin:5px 0">
+     💰 $${(p.botin || 0).toLocaleString()} COP
+    </div>
+    <div style="font-size:12px; color:#666">
+     📊 ${pronosticosPartido.length} apuestas · 
+     ${ganadores.length} acertaron · 
+     ${p.estado === 'abierto' ? '🟢 Abierto' : '🔴 Cerrado'}
+     ${ganadores.length > 0 ? `<br>🏆 Premio por ganador: $${Math.floor(botinGanadores).toLocaleString()} COP` : ''}
+    </div>
+   </div>
+  `}).join("") :
+  '<div style="text-align:center; padding:20px; color:#999;">📭 No hay partidos creados aún</div>';
+ 
+ document.getElementById("listaPartidos").innerHTML = partidos.map(p => {
+  const pronosticosPartido = pronosticos.filter(pr => pr.partidoId === p.id);
+  const ganadores = pronosticosPartido.filter(pr => pr.acerto === true);
+  const botinGanadores = ganadores.length > 0 ? p.botin / ganadores.length : 0;
+  
+  return `
   <div class="partido-item">
    <div class="partido-equipos">
     ⚽ ${p.local} vs ${p.visitante}
    </div>
    <div>📅 ${p.fecha ? new Date(p.fecha).toLocaleString() : "Fecha no definida"}</div>
+   <div class="botin-total" style="font-size:1.1rem; margin:5px 0">
+    💰 Botín: $${(p.botin || 0).toLocaleString()} COP
+   </div>
+   ${ganadores.length > 0 ? `<div style="background:#d4edda; padding:8px; border-radius:8px; margin:8px 0;">
+     🏆 ${ganadores.length} participante(s) acertaron el resultado aleatorio<br>
+     💵 Premio por ganador: $${Math.floor(botinGanadores).toLocaleString()} COP
+    </div>` : ''}
    <div>
     <span class="partido-estado ${p.estado === "abierto" ? "abierto" : "cerrado"}">
      ${p.estado === "abierto" ? "🟢 ABIERTO" : "🔴 CERRADO"}
@@ -633,10 +940,10 @@ function render(){
    <div class="botones-partido">
     <button class="cerrar" onclick="cerrarPartido(${p.id})">🔒 Cerrar</button>
     <button class="reabrir" onclick="reabrirPartido(${p.id})">🔓 Reabrir</button>
-    <button class="eliminar" onclick="eliminarPartido(${p.id})">🗑️ Eliminar</button>
+    <button class="eliminar" onclick="solicitarEliminacion(${p.id})">🗑️ Eliminar</button>
    </div>
   </div>
- `).join("");
+ `}).join("");
  
  const ordenados = [...pronosticos].sort((a,b) => a.timestamp - b.timestamp);
  
@@ -648,43 +955,87 @@ function render(){
       <th>🏅 Prioridad</th>
       <th>👤 Participante</th>
       <th>⚽ Partido</th>
-      <th>🎯 Marcador</th>
+      <th>📝 Tipo</th>
+      <th>🎲 Resultado Real</th>
+      <th>📊 Su Pronóstico</th>
+      <th>✅ Estado</th>
+      <th>💰 Apuesta</th>
       <th>🕒 Registro</th>
      </tr>
     </thead>
     <tbody>
-     ${ordenados.map((p, i) => `
-      <tr>
-       <td class="celda-prioridad" data-label="Prioridad">
-        <span class="numero-prioridad">${i+1}</span>
-       </td>
-       <td data-label="Participante">
-        <span class="nombre-participante">${escapeHtml(p.nombre)}</span>
-       </td>
-       <td data-label="Partido">
-        <span class="partido-nombre">${escapeHtml(p.partido)}</span>
-       </td>
-       <td data-label="Marcador">
-        <span class="marcador-badge">${p.local} - ${p.visitante}</span>
-       </td>
-       <td data-label="Registro">
-        <span class="fecha-registro">${p.fecha}</span>
-       </td>
-      </tr>
-     `).join("")}
+     ${ordenados.map((p, i) => {
+       const partido = partidos.find(pt => pt.id === p.partidoId);
+       const acerto = p.acerto;
+       const ganadores = partido ? pronosticos.filter(pr => pr.partidoId === partido.id && pr.acerto === true).length : 0;
+       const premio = (partido && ganadores > 0) ? partido.botin / ganadores : 0;
+       
+       return `
+       <tr ${acerto ? 'class="acertado"' : ''}>
+        <td class="celda-prioridad" data-label="Prioridad">
+         <span class="numero-prioridad">${i+1}</span>
+         </td>
+        <td data-label="Participante">
+         <span class="nombre-participante">${escapeHtml(p.nombre)}</span>
+         </td>
+        <td data-label="Partido">
+         <span class="partido-nombre">${escapeHtml(p.partido)}</span>
+         </td>
+        <td data-label="Tipo">
+         <span class="tipo-registro ${p.tipoRegistro === 'manual' ? 'tipo-manual' : 'tipo-aleatorio'}">
+          ${p.tipoRegistro === 'manual' ? '✍️ Manual' : '🎲 Aleatorio'}
+         </span>
+         </td>
+        <td data-label="Resultado Real">
+         <span class="marcador-real">${p.resultadoRealLocal} - ${p.resultadoRealVisitante}</span>
+         </td>
+        <td data-label="Su Pronóstico">
+         <span class="marcador-badge">${p.pronosticadoLocal} - ${p.pronosticadoVisitante}</span>
+         </td>
+        <td data-label="Estado">
+         ${acerto ? `<span class="acertado-badge">✅ ACERTÓ - Premio: $${Math.floor(premio).toLocaleString()}</span>` : '<span style="color:#dc3545;">❌ No acertó</span>'}
+         </td>
+        <td data-label="Apuesta">
+         <span style="color:#b8860b; font-weight:bold;">$${p.apuesta.toLocaleString()}</span>
+         </td>
+        <td data-label="Registro">
+         <span class="fecha-registro">${p.fecha}</span>
+         </td>
+       </tr>
+      `}).join("")}
     </tbody>
    </table>
   </div>
   ${ordenados.length === 0 ? '<div style="text-align:center; padding:40px; color:#999;">📭 No hay pronósticos registrados aún</div>' : ''}
  `;
  
- document.getElementById("estadoGeneral").innerHTML = `📊 ${partidos.length} partidos activos | ${pronosticos.length} pronósticos registrados`;
+ const totalApuestas = pronosticos.reduce((sum, p) => sum + (p.apuesta || VALOR_APUESTA), 0);
+ const totalPartidos = partidos.length;
+ const totalBotinGeneral = partidos.reduce((sum, p) => sum + (p.botin || 0), 0);
+ const totalAcertados = pronosticos.filter(p => p.acerto === true).length;
+ 
+ document.getElementById("estadoGeneral").innerHTML = `📊 ${totalPartidos} partidos | 💰 $${totalBotinGeneral.toLocaleString()} en botines | ${pronosticos.length} pronósticos | ${totalAcertados} acertados | Total apostado: $${totalApuestas.toLocaleString()}`;
 }
 
 function escapeHtml(text){
  const div = document.createElement('div');
  div.textContent = text;
  return div.innerHTML;
+}
+
+// Cerrar modal con ESC
+document.addEventListener('keydown', function(event) {
+ if(event.key === 'Escape') {
+  cerrarModal();
+ }
+});
+
+// Cerrar modal clickeando fuera
+window.onclick = function(event) {
+ const modal = document.getElementById("modalPassword");
+ if (event.target === modal) {
+  cerrarModal();
+ }
 }
 
 render();
