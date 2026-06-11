@@ -22,8 +22,6 @@
  --sombra:0 2px 8px rgba(0,0,0,0.1);
  --sombra-hover:0 4px 12px rgba(0,0,0,0.15);
  --oro:#FFD700;
- --plata:#C0C0C0;
- --bronce:#CD7F32;
 }
 
 *{
@@ -148,6 +146,27 @@ button.manual{
  background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 }
 
+button.eliminar-pronostico{
+ background:#dc3545;
+ padding:6px 12px;
+ font-size:12px;
+}
+
+button.eliminar-pronostico:hover{
+ background:#c82333;
+}
+
+button.modificar-pronostico{
+ background:#ffc107;
+ color:#333;
+ padding:6px 12px;
+ font-size:12px;
+}
+
+button.modificar-pronostico:hover{
+ background:#e0a800;
+}
+
 /* Estilos para el botín */
 .botin-card{
  background:linear-gradient(135deg, #fff9e6, #fff3cd);
@@ -167,36 +186,23 @@ button.manual{
  color:#856404;
 }
 
-/* Resultado aleatorio mostrado */
-.resultado-aleatorio-card{
- background:linear-gradient(135deg, #e8f0fe, #d4e4fc);
- border-left:4px solid var(--sonda);
- margin:15px 0;
- padding:15px;
- border-radius:10px;
- text-align:center;
-}
-
-.resultado-aleatorio-card .resultado-grande{
- font-size:2rem;
- font-weight:bold;
- color:var(--sonda);
-}
-
-/* Resultado acertado */
-.acertado{
- background:linear-gradient(135deg, #d4edda, #c3e6cb) !important;
- border-left:4px solid #28a745 !important;
-}
-
-.acertado-badge{
+/* Tipo de registro badge */
+.tipo-registro{
  display:inline-block;
- background:#28a745;
- color:white;
  padding:2px 8px;
  border-radius:20px;
  font-size:11px;
- margin-left:8px;
+ font-weight:bold;
+}
+
+.tipo-manual{
+ background:#11998e;
+ color:white;
+}
+
+.tipo-aleatorio{
+ background:#764ba2;
+ color:white;
 }
 
 /* Estilos mejorados para la tabla */
@@ -254,7 +260,6 @@ button.manual{
  box-shadow:0 2px 6px rgba(0,0,0,0.05);
 }
 
-/* Filas alternas */
 .tabla-pronosticos tbody tr:nth-child(even){
  background-color:#fafbfc;
 }
@@ -263,7 +268,6 @@ button.manual{
  background-color:#ffffff;
 }
 
-/* Celda de prioridad - círculo numerado */
 .celda-prioridad{
  text-align:center;
  font-weight:bold;
@@ -283,7 +287,6 @@ button.manual{
  box-shadow:0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Marcador estilo badge */
 .marcador-badge{
  display:inline-block;
  background:#e9ecef;
@@ -294,37 +297,6 @@ button.manual{
  font-size:13px;
 }
 
-.marcador-real{
- display:inline-block;
- background:#667eea;
- padding:4px 12px;
- border-radius:20px;
- font-weight:bold;
- color:white;
- font-size:13px;
- margin-left:8px;
-}
-
-/* Tipo de registro badge */
-.tipo-registro{
- display:inline-block;
- padding:2px 8px;
- border-radius:20px;
- font-size:11px;
- font-weight:bold;
-}
-
-.tipo-manual{
- background:#11998e;
- color:white;
-}
-
-.tipo-aleatorio{
- background:#764ba2;
- color:white;
-}
-
-/* Fecha en formato más amigable */
 .fecha-registro{
  font-size:12px;
  color:#6c757d;
@@ -338,7 +310,6 @@ button.manual{
  font-size:11px;
 }
 
-/* Nombre del participante con ícono */
 .nombre-participante{
  font-weight:600;
  color:var(--sonda);
@@ -352,7 +323,6 @@ button.manual{
  font-size:13px;
 }
 
-/* Partido con ícono */
 .partido-nombre{
  display:inline-flex;
  align-items:center;
@@ -418,7 +388,6 @@ button.manual{
  font-size:13px;
 }
 
-/* Botones de registro */
 .botones-registro{
  display:flex;
  flex-wrap:wrap;
@@ -431,7 +400,7 @@ button.manual{
  min-width:150px;
 }
 
-/* Modal para contraseña */
+/* Modales */
 .modal{
  display:none;
  position:fixed;
@@ -450,7 +419,7 @@ button.manual{
  padding:25px;
  border-radius:15px;
  width:90%;
- max-width:350px;
+ max-width:400px;
  text-align:center;
  box-shadow:var(--sombra);
 }
@@ -473,7 +442,20 @@ button.manual{
  padding:10px 20px;
 }
 
-/* Responsive para móviles */
+.modal-contenido .input-group{
+ display:flex;
+ gap:10px;
+ margin:15px 0;
+}
+
+.modal-contenido .input-group input{
+ width:50%;
+ text-align:center;
+ font-size:16px;
+ letter-spacing:normal;
+}
+
+/* Responsive */
 @media (max-width: 768px){
  .card{
   margin:12px;
@@ -561,7 +543,6 @@ button.manual{
  }
 }
 
-/* Scroll suave */
 html{
  scroll-behavior:smooth;
 }
@@ -619,7 +600,7 @@ html{
 <div id="tablaPronosticos"></div>
 </div>
 
-<!-- Modal para contraseña -->
+<!-- Modal para contraseña (Eliminar Partido) -->
 <div id="modalPassword" class="modal">
  <div class="modal-contenido">
   <h3>🔒 Verificación requerida</h3>
@@ -632,6 +613,35 @@ html{
  </div>
 </div>
 
+<!-- Modal para contraseña (Eliminar Pronóstico) -->
+<div id="modalPasswordPronostico" class="modal">
+ <div class="modal-contenido">
+  <h3>🔒 Verificación requerida</h3>
+  <p>Ingrese la contraseña para eliminar este pronóstico</p>
+  <input type="password" id="passwordInputPronostico" placeholder="Contraseña" autocomplete="off">
+  <div>
+   <button onclick="confirmarEliminacionPronostico()">✓ Confirmar</button>
+   <button onclick="cerrarModalPronostico()" style="background:#6c757d">✗ Cancelar</button>
+  </div>
+ </div>
+</div>
+
+<!-- Modal para Modificar Pronóstico -->
+<div id="modalModificarPronostico" class="modal">
+ <div class="modal-contenido">
+  <h3>✏️ Modificar Pronóstico</h3>
+  <p id="modificarInfo">Modificando pronóstico de: </p>
+  <div class="input-group">
+   <input type="number" id="modificarLocal" placeholder="Goles Local">
+   <input type="number" id="modificarVisitante" placeholder="Goles Visitante">
+  </div>
+  <div>
+   <button onclick="confirmarModificacion()" style="background:#28a745">✓ Guardar Cambios</button>
+   <button onclick="cerrarModalModificar()" style="background:#6c757d">✗ Cancelar</button>
+  </div>
+ </div>
+</div>
+
 <script>
 
 const CONTRASENA_ADMIN = "72315240";
@@ -640,6 +650,8 @@ const VALOR_APUESTA = 2000;
 let partidos = JSON.parse(localStorage.getItem("partidos")) || [];
 let pronosticos = JSON.parse(localStorage.getItem("pronosticos")) || [];
 let partidoAEliminar = null;
+let pronosticoAEliminar = null;
+let pronosticoAModificar = null;
 
 function guardar(){
  localStorage.setItem("partidos", JSON.stringify(partidos));
@@ -653,6 +665,12 @@ function actualizarBotinPartido(partidoId){
   partido.botin = apuestasPartido.length * VALOR_APUESTA;
   guardar();
  }
+}
+
+function actualizarTodosBotines(){
+ partidos.forEach(partido => {
+  actualizarBotinPartido(partido.id);
+ });
 }
 
 function generarResultadoAleatorioIndividual(){
@@ -705,7 +723,6 @@ function registrarBase(tipo, pronosticoLocal, pronosticoVisitante){
   apuesta: VALOR_APUESTA
  };
  
- // Verificar si acertó
  registro.acerto = (registro.pronosticadoLocal === registro.resultadoRealLocal) && 
                     (registro.pronosticadoVisitante === registro.resultadoRealVisitante);
  
@@ -755,11 +772,132 @@ function registrarAleatorio(){
  const pronosticoLocal = resultadoAleatorio.local;
  const pronosticoVisitante = resultadoAleatorio.visitante;
  
- // Mostrar preview al usuario
  const confirmar = confirm(`🎲 Se generará un marcador ALEATORIO: ${pronosticoLocal} - ${pronosticoVisitante}\n\n¿Deseas registrar este marcador?`);
  
  if(confirmar){
   registrarBase('aleatorio', pronosticoLocal, pronosticoVisitante);
+ }
+}
+
+// Función para modificar pronóstico
+function solicitarModificacionPronostico(ticket){
+ const pronostico = pronosticos.find(p => p.ticket === ticket);
+ if(!pronostico){
+  alert("Pronóstico no encontrado");
+  return;
+ }
+ 
+ // Verificar si el partido está abierto
+ const partido = partidos.find(p => p.id === pronostico.partidoId);
+ if(partido && partido.estado === "cerrado"){
+  alert("⛔ No se puede modificar este pronóstico porque el partido ya está cerrado");
+  return;
+ }
+ 
+ pronosticoAModificar = ticket;
+ const modal = document.getElementById("modalModificarPronostico");
+ document.getElementById("modificarInfo").innerHTML = `Modificando pronóstico de: <strong>${escapeHtml(pronostico.nombre)}</strong> - ${escapeHtml(pronostico.partido)}`;
+ document.getElementById("modificarLocal").value = pronostico.pronosticadoLocal;
+ document.getElementById("modificarVisitante").value = pronostico.pronosticadoVisitante;
+ modal.style.display = "flex";
+}
+
+function cerrarModalModificar(){
+ const modal = document.getElementById("modalModificarPronostico");
+ modal.style.display = "none";
+ pronosticoAModificar = null;
+}
+
+function confirmarModificacion(){
+ const nuevoLocal = parseInt(document.getElementById("modificarLocal").value);
+ const nuevoVisitante = parseInt(document.getElementById("modificarVisitante").value);
+ 
+ if(isNaN(nuevoLocal)){
+  alert("Ingresa los goles del equipo Local");
+  return;
+ }
+ 
+ if(isNaN(nuevoVisitante)){
+  alert("Ingresa los goles del equipo Visitante");
+  return;
+ }
+ 
+ const pronostico = pronosticos.find(p => p.ticket === pronosticoAModificar);
+ if(!pronostico){
+  alert("Pronóstico no encontrado");
+  cerrarModalModificar();
+  return;
+ }
+ 
+ // Verificar nuevamente que el partido esté abierto
+ const partido = partidos.find(p => p.id === pronostico.partidoId);
+ if(partido && partido.estado === "cerrado"){
+  alert("⛔ No se puede modificar este pronóstico porque el partido ya está cerrado");
+  cerrarModalModificar();
+  return;
+ }
+ 
+ // Guardar marcador anterior
+ const anteriorLocal = pronostico.pronosticadoLocal;
+ const anteriorVisitante = pronostico.pronosticadoVisitante;
+ 
+ // Actualizar pronóstico
+ pronostico.pronosticadoLocal = nuevoLocal;
+ pronostico.pronosticadoVisitante = nuevoVisitante;
+ 
+ // Recalcular si acertó
+ pronostico.acerto = (pronostico.pronosticadoLocal === pronostico.resultadoRealLocal) && 
+                      (pronostico.pronosticadoVisitante === pronostico.resultadoRealVisitante);
+ 
+ // Actualizar timestamp para mantener prioridad? (Se mantiene el original)
+ guardar();
+ render();
+ 
+ alert(`✅ Pronóstico modificado correctamente\n📊 Marcador anterior: ${anteriorLocal} - ${anteriorVisitante}\n📊 Nuevo marcador: ${nuevoLocal} - ${nuevoVisitante}\n${pronostico.acerto ? '🏆 ¡AHORA ACERTASTE!' : '❌ Aún no aciertas el resultado'}`);
+ 
+ cerrarModalModificar();
+}
+
+// Función para eliminar pronóstico
+function solicitarEliminacionPronostico(ticket){
+ pronosticoAEliminar = ticket;
+ const modal = document.getElementById("modalPasswordPronostico");
+ modal.style.display = "flex";
+ document.getElementById("passwordInputPronostico").value = "";
+ document.getElementById("passwordInputPronostico").focus();
+}
+
+function cerrarModalPronostico(){
+ const modal = document.getElementById("modalPasswordPronostico");
+ modal.style.display = "none";
+ pronosticoAEliminar = null;
+}
+
+function confirmarEliminacionPronostico(){
+ const password = document.getElementById("passwordInputPronostico").value;
+ 
+ if(password === CONTRASENA_ADMIN){
+  eliminarPronostico(pronosticoAEliminar);
+  cerrarModalPronostico();
+ } else {
+  alert("❌ Contraseña incorrecta. No se puede eliminar el pronóstico.");
+  document.getElementById("passwordInputPronostico").value = "";
+  document.getElementById("passwordInputPronostico").focus();
+ }
+}
+
+function eliminarPronostico(ticket){
+ const pronostico = pronosticos.find(p => p.ticket === ticket);
+ if(pronostico){
+  const partidoId = pronostico.partidoId;
+  
+  if(confirm(`¿Eliminar el pronóstico de ${pronostico.nombre} para el partido ${pronostico.partido}?`)){
+   pronosticos = pronosticos.filter(p => p.ticket !== ticket);
+   actualizarBotinPartido(partidoId);
+   guardar();
+   render();
+   alert("🗑️ Pronóstico eliminado correctamente");
+  }
  }
 }
 
@@ -879,10 +1017,6 @@ function eliminarPartido(id){
  }
 }
 
-function formatearNumero(num){
- return new Intl.NumberFormat('es-CO').format(num);
-}
-
 function render(){
  const combo = document.getElementById("partido");
  combo.innerHTML = "";
@@ -947,6 +1081,7 @@ function render(){
  
  const ordenados = [...pronosticos].sort((a,b) => a.timestamp - b.timestamp);
  
+ // Tabla con columnas: Prioridad, Participante, Partido, Tipo, Marcador, Apuesta, Registro, Acciones
  document.getElementById("tablaPronosticos").innerHTML = `
   <div class="contenedor-tabla">
    <table class="tabla-pronosticos">
@@ -956,22 +1091,16 @@ function render(){
       <th>👤 Participante</th>
       <th>⚽ Partido</th>
       <th>📝 Tipo</th>
-      <th>🎲 Resultado Real</th>
-      <th>📊 Su Pronóstico</th>
-      <th>✅ Estado</th>
+      <th>📊 Marcador</th>
       <th>💰 Apuesta</th>
       <th>🕒 Registro</th>
+      <th>⚡ Acciones</th>
      </tr>
     </thead>
     <tbody>
      ${ordenados.map((p, i) => {
-       const partido = partidos.find(pt => pt.id === p.partidoId);
-       const acerto = p.acerto;
-       const ganadores = partido ? pronosticos.filter(pr => pr.partidoId === partido.id && pr.acerto === true).length : 0;
-       const premio = (partido && ganadores > 0) ? partido.botin / ganadores : 0;
-       
        return `
-       <tr ${acerto ? 'class="acertado"' : ''}>
+       <tr>
         <td class="celda-prioridad" data-label="Prioridad">
          <span class="numero-prioridad">${i+1}</span>
          </td>
@@ -986,14 +1115,8 @@ function render(){
           ${p.tipoRegistro === 'manual' ? '✍️ Manual' : '🎲 Aleatorio'}
          </span>
          </td>
-        <td data-label="Resultado Real">
-         <span class="marcador-real">${p.resultadoRealLocal} - ${p.resultadoRealVisitante}</span>
-         </td>
-        <td data-label="Su Pronóstico">
+        <td data-label="Marcador">
          <span class="marcador-badge">${p.pronosticadoLocal} - ${p.pronosticadoVisitante}</span>
-         </td>
-        <td data-label="Estado">
-         ${acerto ? `<span class="acertado-badge">✅ ACERTÓ - Premio: $${Math.floor(premio).toLocaleString()}</span>` : '<span style="color:#dc3545;">❌ No acertó</span>'}
          </td>
         <td data-label="Apuesta">
          <span style="color:#b8860b; font-weight:bold;">$${p.apuesta.toLocaleString()}</span>
@@ -1001,7 +1124,15 @@ function render(){
         <td data-label="Registro">
          <span class="fecha-registro">${p.fecha}</span>
          </td>
-       </tr>
+        <td data-label="Acciones">
+         <button class="modificar-pronostico" onclick="solicitarModificacionPronostico('${p.ticket}')" style="margin-right:5px;">
+          ✏️ Modificar
+         </button>
+         <button class="eliminar-pronostico" onclick="solicitarEliminacionPronostico('${p.ticket}')">
+          🗑️ Eliminar
+         </button>
+         </td>
+        </tr>
       `}).join("")}
     </tbody>
    </table>
@@ -1012,9 +1143,8 @@ function render(){
  const totalApuestas = pronosticos.reduce((sum, p) => sum + (p.apuesta || VALOR_APUESTA), 0);
  const totalPartidos = partidos.length;
  const totalBotinGeneral = partidos.reduce((sum, p) => sum + (p.botin || 0), 0);
- const totalAcertados = pronosticos.filter(p => p.acerto === true).length;
  
- document.getElementById("estadoGeneral").innerHTML = `📊 ${totalPartidos} partidos | 💰 $${totalBotinGeneral.toLocaleString()} en botines | ${pronosticos.length} pronósticos | ${totalAcertados} acertados | Total apostado: $${totalApuestas.toLocaleString()}`;
+ document.getElementById("estadoGeneral").innerHTML = `📊 ${totalPartidos} partidos | 💰 $${totalBotinGeneral.toLocaleString()} en botines | ${pronosticos.length} pronósticos | Total apostado: $${totalApuestas.toLocaleString()}`;
 }
 
 function escapeHtml(text){
@@ -1023,18 +1153,28 @@ function escapeHtml(text){
  return div.innerHTML;
 }
 
-// Cerrar modal con ESC
+// Cerrar modales con ESC
 document.addEventListener('keydown', function(event) {
  if(event.key === 'Escape') {
   cerrarModal();
+  cerrarModalPronostico();
+  cerrarModalModificar();
  }
 });
 
-// Cerrar modal clickeando fuera
+// Cerrar modales clickeando fuera
 window.onclick = function(event) {
- const modal = document.getElementById("modalPassword");
- if (event.target === modal) {
+ const modalPartido = document.getElementById("modalPassword");
+ const modalPronostico = document.getElementById("modalPasswordPronostico");
+ const modalModificar = document.getElementById("modalModificarPronostico");
+ if (event.target === modalPartido) {
   cerrarModal();
+ }
+ if (event.target === modalPronostico) {
+  cerrarModalPronostico();
+ }
+ if (event.target === modalModificar) {
+  cerrarModalModificar();
  }
 }
 
